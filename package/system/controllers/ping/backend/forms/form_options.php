@@ -34,6 +34,16 @@ class formPingOptions extends cmsForm {
                 ]
             ],
             [
+                'type'   => 'fieldset',
+                'title'  => LANG_ADMIN_NOTICES,
+                'childs' => [
+                    new fieldCheckbox('notify_error', [
+                        'title' => LANG_PING_SEND_NOTICE,
+                        'default' => 1
+                    ])
+                ]
+            ],
+            [
                 'type' => 'html',
                 'content' => $options ? sprintf(LANG_PING_KEY_PATHS,
                         href_to($options['ya_key'].'.txt'), href_to_abs($options['ya_key'].'.txt'),

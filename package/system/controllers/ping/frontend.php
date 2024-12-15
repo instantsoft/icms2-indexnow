@@ -25,6 +25,14 @@ class ping extends cmsFrontend {
 
             if ($this->options[$key_name] === $key) {
 
+                // 2.17.0
+                if (isset($this->cms_core->response)) {
+
+                    $this->cms_core->response->setHeader('Content-Type', 'text/plain');
+
+                    return $this->cms_core->response->setContent($key)->sendAndExit();
+                }
+
                 header('Content-Disposition: inline; filename="'.$key.'.txt"');
                 header('Content-type: text/plain');
 
@@ -59,10 +67,8 @@ class ping extends cmsFrontend {
      */
     public function sendPing($page_url) {
 
-        $model = new cmsModel();
-
         // Администраторы сайта
-        $admin_ids = $model->filterEqual('is_admin', 1)->
+        $admin_ids = $this->model->filterEqual('is_admin', 1)->
                 selectOnly('id')->
                 get('{users}', function($item, $model){
                     return $item['id'];
@@ -72,7 +78,9 @@ class ping extends cmsFrontend {
 
             $httpcode = $this->processSearchenginePing($key_name, $page_url);
 
-            if($httpcode != '200'){
+            $send_notice = $this->options['notify_error'] ?? true;
+
+            if($send_notice && $httpcode > 202) {
 
                 // Отправляем уведомления
                 $this->controller_messages->addRecipients($admin_ids)->sendNoticePM([
@@ -129,7 +137,7 @@ class ping extends cmsFrontend {
 
         curl_close($curl);
 
-        return $httpcode;
+        return (int)$httpcode;
     }
 
 }
